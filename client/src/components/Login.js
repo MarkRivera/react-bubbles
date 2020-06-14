@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from "react";
+import { useHistory } from "react-router-dom";
 import "./Login.css";
 import * as Yup from "yup";
 import axios from "axios";
 
 const Login = () => {
   const [formState, setFormState] = useState({
-    email: "",
+    username: "",
     password: "",
-    isRemembered: false,
   });
 
   const [errors, setErrors] = useState({
-    email: "",
+    username: "",
     password: "",
   });
 
@@ -19,14 +19,12 @@ const Login = () => {
   const [isPasswordFocused, setPasswordFocus] = useState(false);
   const [buttonDisabled, setButtonDisabled] = useState(true);
 
+  const history = useHistory();
+
   // Validation
   const formSchema = Yup.object().shape({
-    email: Yup.string()
-      .email("Be sure you've entered a valid Email Address")
-      .required("Email address is required"),
-    password: Yup.string()
-      .min(3, "Password must be at least 3 characters")
-      .required("A password is required!"),
+    username: Yup.string().required("Email address is required"),
+    password: Yup.string().required("A password is required!"),
   });
 
   useEffect(() => {
@@ -35,10 +33,30 @@ const Login = () => {
     });
   }, [formSchema, formState]);
 
+  const clearForm = () => {
+    setFormState({
+      username: "",
+      password: "",
+    });
+  };
+
   // Event Handlers
 
   const handleSubmit = (e) => {
     e.preventDefault();
+  };
+
+  const handleClick = (e) => {
+    axios
+      .post("http://localhost:5000/api/login", formState)
+      .then((res) => {
+        localStorage.setItem("token", res.data.payload);
+        history.push("/bubbles");
+      })
+      .catch((err) => {
+        console.log(err);
+        clearForm();
+      });
   };
 
   const handleChange = (e) => {
@@ -66,7 +84,7 @@ const Login = () => {
 
   const handleFocus = (e) => {
     switch (e.target.name) {
-      case "email":
+      case "username":
         return setEmailFocus(true);
       case "password":
         return setPasswordFocus(true);
@@ -77,7 +95,7 @@ const Login = () => {
 
   const handleBlur = (e) => {
     switch (e.target.name) {
-      case "email":
+      case "username":
         return e.target.value <= 0 ? setEmailFocus(false) : setEmailFocus(true);
       case "password":
         return e.target.value <= 0
@@ -89,32 +107,32 @@ const Login = () => {
   };
 
   return (
-    <div className="form-container">
+    <div className="form-container" onSubmit={handleSubmit}>
       <h1 className="form-title">Log in</h1>
       <form className="login form" onSubmit={handleSubmit}>
-        <div className="email-input-container">
-          <label className="email-label label">
+        <div className="username-input-container">
+          <label className="username-label label">
             <input
               type="text"
-              className={`email input ${
-                errors.email.length ? "border-error" : ""
+              className={`username input ${
+                errors.username.length ? "border-error" : ""
               }`}
-              id="email"
-              name="email"
+              id="username"
+              name="username"
               autoComplete="off"
               onFocus={handleFocus}
               onBlur={handleBlur}
-              value={formState.email}
+              value={formState.username}
               onChange={handleChange}
             />
             <label
-              htmlFor="email"
+              htmlFor="username"
               className={`placeholder ${isEmailFocused ? "shifted" : ""}`}
             >
-              Email
+              Username
             </label>
-            {errors.email.length > 0 ? (
-              <div className="error">{errors.email}</div>
+            {errors.username.length > 0 ? (
+              <div className="error">{errors.username}</div>
             ) : null}
           </label>
         </div>
@@ -148,6 +166,7 @@ const Login = () => {
         <button
           className={`submit-btn ${buttonDisabled ? "disabled" : ""}`}
           disabled={buttonDisabled}
+          onClick={handleClick}
         >
           {" "}
           Submit{" "}

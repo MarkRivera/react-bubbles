@@ -18,11 +18,18 @@
   padding: 0;
 }
 
+.username-input-container,
+.password-input-container {
+  margin-bottom: 24px;
+}
+
 .form input[type="text"] {
   width: 100%;
   height: 48px;
   padding: 16px 20px 0;
-  margin-bottom: 24px;
+  border: 1px solid #000;
+  border-radius: 4px;
+  outline: none;
 }
 
 .placeholder {
@@ -35,4 +42,12 @@
 .shifted {
   font-size: 11px;
   transform: translate(-20%, 0);
+}
+
+.error {
+  color: #e87c03;
+}
+
+.form input[type="text"].border-error {
+  border-bottom: 2px #e87c03 solid;
 }
